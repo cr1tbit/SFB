@@ -15,6 +15,8 @@ STUB_NAME=$(sed "s/ /-/g" <<< "$ART_NAME")
 mkdir -p $CATEGORY/$STUB_NAME
 
 #3. customize JSON 
-sed "s/{tag}/$STUB_NAME/" template_meta.json > $CATEGORY/$STUBNAME/meta.json 
+sed "s/{tag}/$STUB_NAME/; s/{title}/$ART_NAME/; s/{timestamp}/$(date +'%Y-%m-%d %H:%M')/g; s/{category}/$CATEGORY/" template_meta.json > $CATEGORY/$STUB_NAME/meta.json 
 
+#4. copy markdown stub
+cp template_content.md $CATEGORY/$STUB_NAME/content.md
 
