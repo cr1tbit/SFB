@@ -1,0 +1,11 @@
+{
+   "tag": "{tag}",
+   "title": "{title}",
+   "description": "{desc}",
+   "timestamp":{
+       "created" : "{timestamp}",
+       "displayed": "{timestamp}"
+   },
+   "category": "{category}",
+   "public": false
+}
