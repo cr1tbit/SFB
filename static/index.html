@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <script src="https://unpkg.com/vue"></script>
+
+</head>
+
+<body>
+
+    <ul id="example-1">
+        <li v-for="item in art_list">
+
+            <button v-on:click="render_article_by_tag(item.tag)">
+                    {{ item.title }}, {{ item.timestamp.created }}    
+            </button>
+        
+            <br>
+        </li>
+        <li>
+            <p>
+                {{ article }}
+            </p>
+        </li>
+    </ul>
+    <br>
+    
+
+    <script>
+        var vm = new Vue({
+            el: '#example-1',
+            data: {
+                art_list: [],
+                article: ""
+            },
+            methods: {
+                get_art_list: function () {
+                    return fetch('/api/list')
+                        .then(function (response) {
+                            return response.json()
+                        })
+                },
+                get_art_by_tag: function (tag_string) {
+                    return fetch('/api/article?tag=' + tag_string)
+                        .then(function (response) {
+                            return response.text()
+                        })
+                },
+                render_article_by_tag: function (tag_string) {
+                    this.get_art_by_tag(tag_string)
+                    .then(function (article) {
+                        vm.article = article
+                    })    
+                }
+            },
+            created: function () {
+                this.get_art_list()
+                    .then(function (list) {
+                        vm.art_list = list
+                    })
+                this.render_article_by_tag('non-empty')
+            }
+        })
+    </script>
+</body>

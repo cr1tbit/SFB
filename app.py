@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask import request as f_request 
 import logging
 
@@ -6,7 +6,12 @@ import os
 
 import sys,requests,json, pprint, datetime
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path = '',static_folder = 'static')
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 def get_article_list():
     #list all folders in root content directory - 
@@ -46,9 +51,9 @@ def get_article_list():
 
 article_tree_list = get_article_list() 
 
-@app.route("/")
-def serve_spa():
-    return ""
+@app.route("/<path:path>")
+def serve_spa(path):
+    return send_from_directory('',path)
 
 @app.route("/api/list")
 def get_list():
