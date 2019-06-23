@@ -82,7 +82,6 @@ def get_article_by_tag():
     matching_articles = [aj for aj in article_tree_list if aj['tag'] == tag]
     if len(matching_articles) == 1:
         return get_md_by_meta(matching_articles[0])
-        # return json.dumps(matching_articles[0])
     if len(matching_articles) == 0:
         return get_md_404()
     else:

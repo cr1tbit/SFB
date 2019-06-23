@@ -4,35 +4,54 @@
 <head>
     <meta charset="utf-8" />
     <script src="https://unpkg.com/vue"></script>
-
+    <script src="https://unpkg.com/marked@0.3.6"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/siimple@3.3.1/dist/siimple.min.css">
 </head>
 
-<body>
-
-    <ul id="example-1">
-        <li v-for="item in art_list">
-
-            <button v-on:click="render_article_by_tag(item.tag)">
-                    {{ item.title }}, {{ item.timestamp.created }}    
-            </button>
+<body style='background:#222222'>
+    <div id="blog-html" class="siimple-content siimple-content--large">
+        <div class="siimple-jumbotron  siimple--px-5 siimple--mb-4 siimple--rounded" style="background:black">
+            <div class="siimple-jumbotron-title">
+                Vcc|earth
+            </div>
+            <div class="siimple-jumbotron-detail">
+                Mind the spark gap.
+            </div>
+            
+        </div>
+        <div class="siimple-grid">
+            <div class="siimple-grid-row">
+                <div class="siimple-grid-col siimple-grid-col--3 siimple-grid-col--sm-12">
+                    <div v-for="item in art_list">
+                        <a v-on:click="render_article_by_tag(item.tag)">
+                            || | | {{ item.title }}
+                        </a>
+                    </div>
+                </div>
+                <div class="siimple-grid-col siimple-grid-col--9 siimple-grid-col--sm-12">
+                    <div v-html="compiledMarkdown"></div>
+                    
+                </div>
+            </div>
+        </div>
         
-            <br>
-        </li>
-        <li>
-            <p>
-                {{ article }}
-            </p>
-        </li>
-    </ul>
-    <br>
-    
-
+            <div class="siimple-rule "></div>
+            <div align="center" class="siimple--mt-5">
+                <p>&copy; 2019 Jakub Sadowski | ΞΔ-flavoured MIT</p>
+        
+        </div>
+    </div>
     <script>
         var vm = new Vue({
-            el: '#example-1',
+            el: '#blog-html',
             data: {
                 art_list: [],
                 article: ""
+            },
+            computed: {
+                compiledMarkdown: function () {
+                return marked(this.article, { sanitize: true })
+                }
             },
             methods: {
                 get_art_list: function () {
@@ -49,9 +68,9 @@
                 },
                 render_article_by_tag: function (tag_string) {
                     this.get_art_by_tag(tag_string)
-                    .then(function (article) {
-                        vm.article = article
-                    })    
+                        .then(function (article) {
+                            vm.article = article
+                        })
                 }
             },
             created: function () {
