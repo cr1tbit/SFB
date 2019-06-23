@@ -6,26 +6,30 @@
     <script src="https://unpkg.com/vue"></script>
     <script src="https://unpkg.com/marked@0.3.6"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/siimple@3.3.1/dist/siimple.min.css">
+    <link rel='stylesheet' href='//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack-subset.css'>
 </head>
 
-<body style='background:#222222'>
+<body style=' font: "hack-subset"; background:#222222'>
+        <div class="siimple-navbar theme-navbar siimple-navbar--large" style="background:black">
+                <a class="siimple-navbar-title siimple--float-right">
+                    Vcc|earth
+                </a>
+            </div>
     <div id="blog-html" class="siimple-content siimple-content--large">
-        <div class="siimple-jumbotron  siimple--px-5 siimple--mb-4 siimple--rounded" style="background:black">
-            <div class="siimple-jumbotron-title">
-                Vcc|earth
-            </div>
-            <div class="siimple-jumbotron-detail">
-                Mind the spark gap.
-            </div>
-            
-        </div>
+        
         <div class="siimple-grid">
             <div class="siimple-grid-row">
                 <div class="siimple-grid-col siimple-grid-col--3 siimple-grid-col--sm-12">
-                    <div v-for="item in art_list">
-                        <a v-on:click="render_article_by_tag(item.tag)">
-                            || | | {{ item.title }}
-                        </a>
+                    <div v-for="category in art_tree">
+                        || {{ category.name }}.
+                        
+                        <div v-for="article in category.articles">
+                            <a style="cursor: pointer;" v-on:click="render_article_by_path(category.name,article.tag)">
+                                    || | | {{ article.title }}
+                            </a>                               
+                            <br>
+                        </div>
+                        
                     </div>
                 </div>
                 <div class="siimple-grid-col siimple-grid-col--9 siimple-grid-col--sm-12">
@@ -34,18 +38,17 @@
                 </div>
             </div>
         </div>
-        
-            <div class="siimple-rule "></div>
+            <div class="siimple-rule"></div>
             <div align="center" class="siimple--mt-5">
                 <p>&copy; 2019 Jakub Sadowski | ΞΔ-flavoured MIT</p>
-        
+            </div>
         </div>
     </div>
     <script>
         var vm = new Vue({
             el: '#blog-html',
             data: {
-                art_list: [],
+                art_tree: [],
                 article: ""
             },
             computed: {
@@ -54,31 +57,31 @@
                 }
             },
             methods: {
-                get_art_list: function () {
+                get_art_tree: function () {
                     return fetch('/api/list')
                         .then(function (response) {
                             return response.json()
                         })
                 },
-                get_art_by_tag: function (tag_string) {
-                    return fetch('/api/article?tag=' + tag_string)
+                get_art_by_path: function (category,article) {
+                    return fetch('/api/article/' + category + '/'+article)
                         .then(function (response) {
                             return response.text()
                         })
                 },
-                render_article_by_tag: function (tag_string) {
-                    this.get_art_by_tag(tag_string)
+                render_article_by_path: function (category,article) {
+                    this.get_art_by_path(category,article)
                         .then(function (article) {
                             vm.article = article
                         })
                 }
             },
             created: function () {
-                this.get_art_list()
+                this.get_art_tree()
                     .then(function (list) {
-                        vm.art_list = list
+                        vm.art_tree = list
                     })
-                this.render_article_by_tag('non-empty')
+                this.render_article_by_path('main','non-empty')
             }
         })
     </script>

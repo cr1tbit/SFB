@@ -2,62 +2,76 @@ from flask import Flask, send_from_directory
 from flask import request as f_request 
 import logging
 
+from json import JSONDecodeError
+
 import os
 
 import sys,requests,json, pprint, datetime
 
 app = Flask(__name__, static_url_path = '',static_folder = 'static')
 
+
+#for my local testing
 @app.after_request
 def after_request(response):
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
-def get_article_list():
+def get_article_tree():
     #list all folders in root content directory - 
     # they contain articles from specific category.
+
     article_categories = [
-        c for c in os.listdir('content') 
+        {'name':c,'articles':[]} for c in os.listdir('content') 
         if os.path.isdir(os.path.join('content',c))
         ]
+
     
     #in every category enter all of the subfoders,
     #to collect all meta.json files - they contain
     #metadata needed to render specific article.
-    meta_jsons = []
-    for c in article_categories:
-        meta_jsons.extend(
+    for category in article_categories:
+        category['articles'].extend(
             [
-                os.path.join('content',c,a,'meta.json')
-                for a in os.listdir(os.path.join('content',c))
+                load_meta_by_filepath(
+                    os.path.join('content',category['name'],arts,'meta.json')
+                    )
+                for arts in os.listdir(os.path.join('content',category['name']))
             ]
         )
-    #attempt to load json from every found .json file,
-    #and put them in a single list.
-    article_list = []
-    for j in meta_jsons:
-        try:
-            with open(j,'r') as fh:
-                loaded_json = json.load(fh)
-                article_list.append(loaded_json)
-        except JSONDecodeError as e:
-            logging.warning("invalid JSON found in file "+ str(j))
-        except (OSError, IOError) as e:
-            logging.warning("error opening json file "+ str(j)+" - reason: " + str(e))
-    print("loaded JSON:")
-    print(json.dumps(article_list,indent=2))
-    return article_list
     
+    print("loaded JSON:")
+    print(json.dumps(article_categories,indent=2))
+    return article_categories
 
-article_tree_list = get_article_list() 
+def load_meta_by_filepath(filepath):
+    # Attenpt opening JSON by its filepath
+    try:
+        with open(filepath,'r') as fh:
+            loaded_json = json.load(fh)
+            return(loaded_json)
+    except JSONDecodeError as e:
+        logging.warning("invalid JSON found in file "+ str(j))
+        return {}
+    except (OSError, IOError) as e:
+        logging.warning("error opening json file "+ str(j)+" - reason: " + str(e))
+        return {}
+
+
+article_tree = get_article_tree() 
 
 @app.route("/<path:path>")
 def serve_spa(path):
     return send_from_directory('',path)
 
+@app.route("/")
+def serve_index():
+    return send_from_directory('','index.html')
+
 @app.route("/api/list")
 def get_list():
-    return json.dumps(article_tree_list)
+    return json.dumps(article_tree)
+
 
 def get_md_by_meta(meta_dict):
     path_by_meta = \
@@ -74,20 +88,18 @@ def get_md_by_meta(meta_dict):
 def get_md_404(reason = "rekt"):
     return "rekt. Because "+ str(reason)
 
-@app.route("/api/article")
-def get_article_by_tag():
-    tag = f_request.args.get('tag')
-    if type(tag) is not str:
+@app.route("/api/article/<string:category>/<string:article_tag>")
+def get_article_by_path(category,article_tag):
+    try:
+        articles_from_category = [
+            afc for afc in article_tree
+            if afc['name'] == category][0]['articles']
+        
+        article_meta = [
+            a for a in articles_from_category
+            if a['tag'] == article_tag
+        ][0]
+        print(json.dumps(article_meta,indent=2))
+        return get_md_by_meta(article_meta)
+    except:
         return get_md_404()
-    matching_articles = [aj for aj in article_tree_list if aj['tag'] == tag]
-    if len(matching_articles) == 1:
-        return get_md_by_meta(matching_articles[0])
-    if len(matching_articles) == 0:
-        return get_md_404()
-    else:
-        logging.warning("multiple articles with same tag found - this is bad.")
-        return get_md_by_meta(matching_articles[0])
-    
-def elo():
-    pass
-
