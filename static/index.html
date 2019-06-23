@@ -3,42 +3,66 @@
 
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://unpkg.com/vue"></script>
     <script src="https://unpkg.com/marked@0.3.6"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/siimple@3.3.1/dist/siimple.min.css">
-    <link rel='stylesheet' href='//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack-subset.css'>
 </head>
 
-<body style=' font: "hack-subset"; background:#222222'>
+<body style=' font: ""; background:#EAEEEE'>
         <div class="siimple-navbar theme-navbar siimple-navbar--large" style="background:black">
                 <a class="siimple-navbar-title siimple--float-right">
-                    Vcc|earth
+                    <span style="text-shadow: 0 0 4px #990000">Vcc</span>|<span style="text-shadow: 0 0 4px #000099">earth</span>
                 </a>
             </div>
-    <div id="blog-html" class="siimple-content siimple-content--large">
-        
-        <div class="siimple-grid">
+    <div id="blog-html" class="siimple-content siimple-content--large" style="padding-top:0px">
+        <div class="siimple-grid" style="min-height: 600px">
             <div class="siimple-grid-row">
                 <div class="siimple-grid-col siimple-grid-col--3 siimple-grid-col--sm-12">
+                    <div>
+                        <pre>
+ ___ _   _ _ __   
+/ __| | | | '_ \  
+\__ \ |_| | |_) | 
+|___/\__,_| .__(_)
+          |_|         
+
+Ma names' Jakub 
+and sometimes
+I do stuff.
+                        </pre>
+                    </div>
+                    <p>The stuff:</p>
                     <div v-for="category in art_tree">
                         || {{ category.name }}.
                         
                         <div v-for="article in category.articles">
-                            <a style="cursor: pointer;" v-on:click="render_article_by_path(category.name,article.tag)">
-                                    || | | {{ article.title }}
-                            </a>                               
-                            <br>
+                            <div v-if="article.tag == active_article_tag">
+                                <a style="color:#000000;text-shadow: 0 0 3px #FF8800">
+                                || | | {{ article.title }}    
+                                </a>
+                            </div> 
+                            <div v-else>
+                                <a  style="cursor: pointer;" v-on:click="current_article_path = '/'+article.category+'/'+article.tag">
+                                || | | {{ article.title }}
+                                </a>
+                            </div>
+                            
                         </div>
                         
                     </div>
                 </div>
                 <div class="siimple-grid-col siimple-grid-col--9 siimple-grid-col--sm-12">
-                    <div v-html="compiledMarkdown"></div>
-                    
+                    <div v-html="compiledMarkdown">
+                        <h1>:(</h1>
+                        <p>Your browser ran into some javaScript problems and needs to refresh. We're not collecting any info because javaScript is disabled.</p>
+                        <p>Unfortunatelly this webpage bases on vue.js and some fetch api so it is absolutelly non-unjavascriptable<p>
+                        <p>Feel free to browse my stuff by manually curling the content from api or whatever: /api/list and /api/article/{category}/{tag}</p>
+                    </div>
                 </div>
             </div>
         </div>
-            <div class="siimple-rule"></div>
+            <div class="siimple-rule siimple-rule--grey"></div>
             <div align="center" class="siimple--mt-5">
                 <p>&copy; 2019 Jakub Sadowski | ΞΔ-flavoured MIT</p>
             </div>
@@ -48,13 +72,24 @@
         var vm = new Vue({
             el: '#blog-html',
             data: {
+                current_article_path: '',
+                active_article_tag: null,
                 art_tree: [],
-                article: ""
+                fallback_article_path: '/main/non-empty',
+                
+                compiledMarkdown: "",
             },
-            computed: {
-                compiledMarkdown: function () {
-                return marked(this.article, { sanitize: true })
-                }
+            watch: {
+                current_article_path: function (new_path,old_path){
+                    window.history.replaceState(
+                        null,
+                        null,
+                        new_path)
+                    this.fetch_md_by_path(new_path).then(function(response_md){
+                        vm.compiledMarkdown = marked(response_md, { sanitize: true })
+                    })
+                    this.active_article_tag =  new_path.split('/')[new_path.split('/').length - 1]
+                }        
             },
             methods: {
                 get_art_tree: function () {
@@ -63,25 +98,23 @@
                             return response.json()
                         })
                 },
-                get_art_by_path: function (category,article) {
-                    return fetch('/api/article/' + category + '/'+article)
+                fetch_md_by_path: function (path) {
+                    return fetch('/api/article' + path)
                         .then(function (response) {
                             return response.text()
                         })
                 },
-                render_article_by_path: function (category,article) {
-                    this.get_art_by_path(category,article)
-                        .then(function (article) {
-                            vm.article = article
-                        })
-                }
+
             },
             created: function () {
                 this.get_art_tree()
                     .then(function (list) {
                         vm.art_tree = list
                     })
-                this.render_article_by_path('main','non-empty')
+                if (window.location.pathname.split('/').length > 2)
+                    this.current_article_path = window.location.pathname
+                else
+                    this.current_article_path = fallback_article_path
             }
         })
     </script>

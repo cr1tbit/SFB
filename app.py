@@ -51,22 +51,22 @@ def load_meta_by_filepath(filepath):
             loaded_json = json.load(fh)
             return(loaded_json)
     except JSONDecodeError as e:
-        logging.warning("invalid JSON found in file "+ str(j))
+        logging.warning("invalid JSON found in file "+ str(filepath))
         return {}
     except (OSError, IOError) as e:
-        logging.warning("error opening json file "+ str(j)+" - reason: " + str(e))
+        logging.warning("error opening json file "+ str(filepath)+" - reason: " + str(e))
         return {}
 
 
 article_tree = get_article_tree() 
 
-@app.route("/<path:path>")
-def serve_spa(path):
-    return send_from_directory('',path)
+@app.route('/', defaults={'path': '','path2': ''})
+@app.route('/<string:path>',defaults={'path2': ''})
+@app.route('/<string:path>/<string:path2>')
+def serve_spa(path,path2):
+    print(path)
+    return app.send_static_file('index.html')
 
-@app.route("/")
-def serve_index():
-    return send_from_directory('','index.html')
 
 @app.route("/api/list")
 def get_list():
