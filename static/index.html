@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://unpkg.com/vue"></script>
     <script src="https://unpkg.com/marked@0.6.2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/8.4.2/markdown-it.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/siimple@3.3.1/dist/siimple.min.css">
 </head>
 
@@ -69,6 +70,8 @@ I do stuff.
         </div>
     </div>
     <script>
+        var md = window.markdownit();
+
         var vm = new Vue({
             el: '#blog-html',
             data: {
@@ -86,7 +89,7 @@ I do stuff.
                         null,
                         new_path)
                     this.fetch_md_by_path(new_path).then(function(response_md){
-                        vm.compiledMarkdown = marked(response_md, { sanitize: true })
+                        vm.compiledMarkdown = md.render(response_md, { sanitize: true })
                     })
                     this.active_article_tag =  new_path.split('/')[new_path.split('/').length - 1]
                 }        
