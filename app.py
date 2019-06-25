@@ -85,8 +85,8 @@ def get_md_by_meta(meta_dict):
     with open(path_by_meta,'r') as fh:
         return fh.read()
 
-def get_md_404(reason = "rekt"):
-    return "rekt. Because "+ str(reason)
+def get_md_404(reason = ""):
+    return "# Article not found. "+ str(reason)
 
 @app.route("/api/article/<string:category>/<string:article_tag>")
 def get_article_by_path(category,article_tag):
