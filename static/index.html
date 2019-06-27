@@ -6,16 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://unpkg.com/vue"></script>
     <script src="https://unpkg.com/marked@0.6.2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/8.4.2/markdown-it.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/siimple@3.3.1/dist/siimple.min.css">
+    <script 
+        src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/8.4.2/markdown-it.min.js"
+    ></script>
+    <link rel="stylesheet" 
+        href="https://cdn.jsdelivr.net/npm/siimple@3.3.1/dist/siimple.min.css">
+    <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/styles/default.min.css">
+    <script 
+        src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/highlight.min.js">
+    </script>
 </head>
 
 <body style=' font: ""; background:#EAEEEE'>
-        <div class="siimple-navbar theme-navbar siimple-navbar--large" style="background:black">
-                <a class="siimple-navbar-title siimple--float-right">
-                    <span style="text-shadow: 0 0 4px #990000">Vcc</span>|<span style="text-shadow: 0 0 4px #000099">earth</span>
-                </a>
-            </div>
+    <div class="siimple-navbar theme-navbar siimple-navbar--large" style="background:black">
+        <a class="siimple-navbar-title siimple--float-right">
+            <span style="text-shadow: 0 0 4px #990000">Vcc</span>|
+            <span style="text-shadow: 0 0 4px #000099">earth</span>
+        </a>
+    </div>
     <div id="blog-html" class="siimple-content siimple-content--large" style="padding-top:0px">
         <div class="siimple-grid" style="min-height: 600px">
             <div class="siimple-grid-row">
@@ -36,41 +45,67 @@ I do stuff.
                     <p>The stuff:</p>
                     <div v-for="category in art_tree">
                         || {{ category.name }}.
-                        
+
                         <div v-for="article in category.articles">
                             <div v-if="article.tag == active_article_tag">
                                 <a style="color:#000000;text-shadow: 0 0 3px #FF8800">
-                                || | | {{ article.title }}    
-                                </a>
-                            </div> 
-                            <div v-else>
-                                <a  style="cursor: pointer;" v-on:click="current_article_path = '/'+article.category+'/'+article.tag">
-                                || | | {{ article.title }}
+                                    || | | {{ article.title }}
                                 </a>
                             </div>
-                            
+                            <div v-else>
+                                <a style="cursor: pointer;" v-on:click="current_article_path = '/'+article.category+'/'+article.tag">
+                                    || | | {{ article.title }}
+                                </a>
+                            </div>
+
                         </div>
-                        
+
                     </div>
                 </div>
                 <div class="siimple-grid-col siimple-grid-col--9 siimple-grid-col--sm-12">
                     <div v-html="compiledMarkdown">
                         <h1>:(</h1>
-                        <p>Your browser ran into some javaScript problems and needs to refresh. We're not collecting any info because javaScript is disabled.</p>
-                        <p>Unfortunatelly this webpage bases on vue.js and some fetch api so it is absolutelly non-unjavascriptable<p>
-                        <p>Feel free to browse my stuff by manually curling the content from api or whatever: /api/list and /api/article/{category}/{tag}</p>
+                        <p>
+                            Your browser ran into some javaScript problems and needs to refresh. We're not collecting any info
+                            because javaScript is disabled.
+                        </p>
+                        <p>
+                            Unfortunatelly this webpage bases on vue.js and some fetch api so it is absolutelly non-unjavascriptable
+                        </p>
+                        <p>
+                            Feel free to browse my stuff by manually curling the content from api or whatever: /api/list
+                            and /api/article/{category}/{tag}
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
-            <div class="siimple-rule siimple-rule--grey"></div>
-            <div align="center" class="siimple--mt-5">
-                <p>&copy; 2019 Jakub Sadowski | <i style="text-shadow: 0 0 4px #FFFF00"><a a href='/about/ksidelta-MIT'>ΞΔ</a></i>-flavoured MIT</p>
-            </div>
+        <div class="siimple-rule siimple-rule--grey"></div>
+        <div align="center" class="siimple--mt-5">
+            <p>&copy; 2019 Jakub Sadowski |
+                <i style="text-shadow: 0 0 4px #FFFF00">
+                    <a a href='/about/ksidelta-MIT'>ΞΔ</a>
+                </i>-flavoured MIT</p>
         </div>
     </div>
+    </div>
     <script>
-        var md = window.markdownit();
+        
+        var md = window.markdownit({
+            highlight: function (str, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    try {
+                        return (
+                            '<pre class="siimple-pre" style="background: #FFFFFF">' + 
+                            hljs.highlight(lang, str, true).value+
+                            '</pre>'
+                        );
+                    } catch (__) { }
+                }
+
+                return ''; // use external default escaping
+            }
+        });
 
         var vm = new Vue({
             el: '#blog-html',
@@ -79,20 +114,20 @@ I do stuff.
                 active_article_tag: null,
                 art_tree: [],
                 fallback_article_path: '/about/this-blog',
-                
+
                 compiledMarkdown: "",
             },
             watch: {
-                current_article_path: function (new_path,old_path){
+                current_article_path: function (new_path, old_path) {
                     window.history.replaceState(
                         null,
                         null,
                         new_path)
-                    this.fetch_md_by_path(new_path).then(function(response_md){
+                    this.fetch_md_by_path(new_path).then(function (response_md) {
                         vm.compiledMarkdown = md.render(response_md, { sanitize: true })
                     })
-                    this.active_article_tag =  new_path.split('/')[new_path.split('/').length - 1]
-                }        
+                    this.active_article_tag = new_path.split('/')[new_path.split('/').length - 1]
+                }
             },
             methods: {
                 get_art_tree: function () {
