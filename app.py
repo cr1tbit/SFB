@@ -73,13 +73,13 @@ def get_list():
     return json.dumps(article_tree)
 
 
-def get_md_by_meta(meta_dict):
+def get_html_by_meta(meta_dict):
     path_by_meta = \
         os.path.join(
             'content',
             meta_dict['category'],
             meta_dict['tag'],
-            'content.md'
+            'content.html'
         ).replace('..',"i-may-be-paranoid")
     
     with open(path_by_meta,'r') as fh:
@@ -100,6 +100,6 @@ def get_article_by_path(category,article_tag):
             if a['tag'] == article_tag
         ][0]
         print(json.dumps(article_meta,indent=2))
-        return get_md_by_meta(article_meta)
+        return get_html_by_meta(article_meta)
     except:
         return get_md_404()

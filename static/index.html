@@ -5,17 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://unpkg.com/vue"></script>
-    <script src="https://unpkg.com/marked@0.6.2"></script>
-    <script 
-        src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/8.4.2/markdown-it.min.js"
-    ></script>
     <link rel="stylesheet" 
-        href="https://cdn.jsdelivr.net/npm/siimple@3.3.1/dist/siimple.min.css">
-    <link rel="stylesheet"
-      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/styles/default.min.css">
-    <script 
-        src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/highlight.min.js">
-    </script>
+        href="https://cdn.jsdelivr.net/npm/siimple@3.3.1/dist/siimple.min.css">   
 </head>
 
 <body style=' font: ""; background:#EAEEEE'>
@@ -63,7 +54,7 @@ I do stuff.
                     </div>
                 </div>
                 <div class="siimple-grid-col siimple-grid-col--9 siimple-grid-col--sm-12">
-                    <div v-html="compiledMarkdown">
+                    <div v-html="articleHtml">
                         <h1>:(</h1>
                         <p>
                             Your browser ran into some javaScript problems and needs to refresh. We're not collecting any info
@@ -90,23 +81,6 @@ I do stuff.
     </div>
     </div>
     <script>
-        
-        var md = window.markdownit({
-            highlight: function (str, lang) {
-                if (lang && hljs.getLanguage(lang)) {
-                    try {
-                        return (
-                            '<pre class="siimple-pre" style="background: #FFFFFF">' + 
-                            hljs.highlight(lang, str, true).value+
-                            '</pre>'
-                        );
-                    } catch (__) { }
-                }
-
-                return ''; // use external default escaping
-            }
-        });
-
         var vm = new Vue({
             el: '#blog-html',
             data: {
@@ -115,7 +89,7 @@ I do stuff.
                 art_tree: [],
                 fallback_article_path: '/about/this-blog',
 
-                compiledMarkdown: "",
+                articleHtml: "",
             },
             watch: {
                 current_article_path: function (new_path, old_path) {
@@ -124,7 +98,7 @@ I do stuff.
                         null,
                         new_path)
                     this.fetch_md_by_path(new_path).then(function (response_md) {
-                        vm.compiledMarkdown = md.render(response_md, { sanitize: true })
+                        vm.articleHtml = '<iframe style="border:none;height:100%;width:100%;" src= "/api/article'+new_path+'"></iframe>'
                     })
                     this.active_article_tag = new_path.split('/')[new_path.split('/').length - 1]
                 }

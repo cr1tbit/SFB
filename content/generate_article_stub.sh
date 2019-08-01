@@ -18,5 +18,5 @@ mkdir -p $CATEGORY/$STUB_NAME
 sed "s/{tag}/$STUB_NAME/; s/{title}/$ART_NAME/; s/{timestamp}/$(date +'%Y-%m-%d %H:%M')/g; s/{category}/$CATEGORY/" template_meta.json > $CATEGORY/$STUB_NAME/meta.json 
 
 #4. copy markdown stub
-cp template_content.md $CATEGORY/$STUB_NAME/content.md
+cp template_content.adoc $CATEGORY/$STUB_NAME/content.adoc
 
