@@ -32,7 +32,7 @@
 |___/\__,_| .__(_)
           |_|         
 
-Ma names' Jakub 
+My name is Jakub 
 and sometimes
 I do stuff.
                         </pre>
@@ -101,14 +101,18 @@ I do stuff.
                         null,
                         null,
                         new_path)
-                    this.fetch_md_by_path(new_path).then(function (response_md) {
-                        vm.articleHtml = response_md
+                    this.fetch_html_by_path(new_path).then(function (response_html) {
+                        vm.articleHtml = response_html
                         setTimeout(function(){
                             document.querySelectorAll('pre code').forEach((block) => {
                                 hljs.highlightBlock(block);
                             });
                         },5.391*10^-39);
-                        //this interval waits approx. 1 planck time unit for the DOM to be updated.
+                        //this function introduces approx. 1 unit of planck time delay
+                        //so that the DOM can be updated. Please note, decimating this
+                        //value even more implies usage of infinite energies, which might
+                        //cause creation of mini "node_modules" directories, albeit
+                        //evaporating quickly.
                     })
                     this.active_article_tag = new_path.split('/')[new_path.split('/').length - 1]
                     
@@ -121,7 +125,7 @@ I do stuff.
                             return response.json()
                         })
                 },
-                fetch_md_by_path: function (path) {
+                fetch_html_by_path: function (path) {
                     return fetch('/api/article' + path)
                         .then(function (response) {
                             return response.text()
@@ -141,11 +145,4 @@ I do stuff.
             }
         })
     </script>
-    <pre><code>
-        #include wypierdalaj
-
-        int main(){
-            return -1
-        }
-        </code></pre>
 </body>
