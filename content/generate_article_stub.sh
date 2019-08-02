@@ -20,3 +20,5 @@ sed "s/{tag}/$STUB_NAME/; s/{title}/$ART_NAME/; s/{timestamp}/$(date +'%Y-%m-%d 
 #4. copy markdown stub
 cp template_content.adoc $CATEGORY/$STUB_NAME/content.adoc
 
+
+

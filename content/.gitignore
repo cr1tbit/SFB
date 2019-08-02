@@ -2,5 +2,5 @@
 
 ! template_content.md
 ! template_meta.json
-! generate_article_stub.sh
+!*.sh
 ! .gitignore

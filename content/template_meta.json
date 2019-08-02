@@ -4,6 +4,7 @@
    "description": "{desc}",
    "timestamp":{
        "created" : "{timestamp}",
+       "updated" : "{timestamp}",
        "displayed": "{timestamp}"
    },
    "category": "{category}",
