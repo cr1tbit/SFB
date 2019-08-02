@@ -67,6 +67,16 @@ def serve_spa(path,path2):
     print(path)
     return app.send_static_file('index.html')
 
+@app.route('/favicon.ico')
+def get_icon():
+    return app.send_static_file('favicon.ico')
+
+@app.route('/adoc.css')
+def get_css():
+    return app.send_static_file('adoc.css')
+    
+
+
 
 @app.route("/api/list")
 def get_list():

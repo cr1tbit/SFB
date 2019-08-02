@@ -6,7 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://unpkg.com/vue"></script>
     <link rel="stylesheet" 
-        href="https://cdn.jsdelivr.net/npm/siimple@3.3.1/dist/siimple.min.css">   
+        href="https://cdn.jsdelivr.net/npm/siimple@3.3.1/dist/siimple.min.css">
+    <link rel="stylesheet" 
+        href="/adoc.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
 </head>
 
 <body style=' font: ""; background:#EAEEEE'>
@@ -54,7 +58,7 @@ I do stuff.
                     </div>
                 </div>
                 <div class="siimple-grid-col siimple-grid-col--9 siimple-grid-col--sm-12">
-                    <div v-html="articleHtml">
+                    <div class="article_content" v-html="articleHtml">
                         <h1>:(</h1>
                         <p>
                             Your browser ran into some javaScript problems and needs to refresh. We're not collecting any info
@@ -98,9 +102,16 @@ I do stuff.
                         null,
                         new_path)
                     this.fetch_md_by_path(new_path).then(function (response_md) {
-                        vm.articleHtml = '<iframe style="border:none;height:100%;width:100%;" src= "/api/article'+new_path+'"></iframe>'
+                        vm.articleHtml = response_md
+                        setTimeout(function(){
+                            document.querySelectorAll('pre code').forEach((block) => {
+                                hljs.highlightBlock(block);
+                            });
+                        },5.391*10^-39);
+                        //this interval waits approx. 1 planck time unit for the DOM to be updated.
                     })
                     this.active_article_tag = new_path.split('/')[new_path.split('/').length - 1]
+                    
                 }
             },
             methods: {
@@ -118,6 +129,7 @@ I do stuff.
                 },
             },
             created: function () {
+                
                 this.get_art_tree()
                     .then(function (list) {
                         vm.art_tree = list
@@ -129,4 +141,11 @@ I do stuff.
             }
         })
     </script>
+    <pre><code>
+        #include wypierdalaj
+
+        int main(){
+            return -1
+        }
+        </code></pre>
 </body>
